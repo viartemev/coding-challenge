@@ -20,11 +20,11 @@ class TransactionsController {
     @PostMapping
     fun addTransaction(@RequestBody transactionRequest: TransactionRequest): ResponseEntity<Any> {
         val now = Instant.from(DateTimeFormatter.ISO_INSTANT.parse("2018-11-25T19:22:29.277Z"))
-        if (transactionRequest.timestamp.isAfter(now)) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Any>()
-        }
         if (Duration.between(transactionRequest.timestamp, now).seconds > 60) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build<Any>()
+        }
+        if (transactionRequest.timestamp.isAfter(now)) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Any>()
         }
         // TODO add the transaction
         return ResponseEntity.status(HttpStatus.CREATED).build<Any>()

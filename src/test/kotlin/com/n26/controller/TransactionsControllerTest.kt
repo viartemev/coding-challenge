@@ -1,6 +1,5 @@
 package com.n26.controller
 
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,16 +39,15 @@ class TransactionsControllerTest {
     @Test
     fun `transactions API should return 400 if the JSON is invalid`() {
         mvc.perform(post("/transactions")
-                .content("{\"amount\": \"12.3343\"}")
+                .content("String")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(400))
     }
 
     @Test
-    @Ignore("fix with advice controller")
     fun `transactions API should return 422 if any of the fields are not parsable`() {
         mvc.perform(post("/transactions")
-                .content("{\"amount\": \"\", \"timestamp\": \"2018-11-25T19:10:29.277Z\"}")
+                .content("{\"timestamp\":\"4/23/2018 11:32 PM\", \"amount\":\"262.01\"}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(422))
     }
