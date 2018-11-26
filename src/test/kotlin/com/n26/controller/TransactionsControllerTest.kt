@@ -3,8 +3,8 @@ package com.n26.controller
 import arrow.core.Either
 import com.n26.controller.domain.TransactionRequest
 import com.n26.service.TransactionService
-import com.n26.service.exception.TransactionTimeIsFuture
-import com.n26.service.exception.TransactionTimeTooOld
+import com.n26.service.exception.TransactionIsInTheFuture
+import com.n26.service.exception.TransactionIsTooOld
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.doReturn
@@ -54,7 +54,7 @@ class TransactionsControllerTest {
         val now = Instant.now()
         val nowMinus10Minutes = now.minus(10, ChronoUnit.MINUTES)
         val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowMinus10Minutes)
-        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionTimeTooOld))
+        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionIsTooOld))
 
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$nowMinus10Minutes\"}")
@@ -84,7 +84,7 @@ class TransactionsControllerTest {
         val now = Instant.now()
         val nowPlus3Seconds = now.plusSeconds(3)
         val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowPlus3Seconds)
-        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionTimeIsFuture))
+        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionIsInTheFuture))
 
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$nowPlus3Seconds\"}")

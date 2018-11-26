@@ -2,8 +2,8 @@ package com.n26.controller
 
 import com.n26.controller.domain.TransactionRequest
 import com.n26.service.TransactionService
-import com.n26.service.exception.TransactionTimeIsFuture
-import com.n26.service.exception.TransactionTimeTooOld
+import com.n26.service.exception.TransactionIsInTheFuture
+import com.n26.service.exception.TransactionIsTooOld
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,8 +23,8 @@ class TransactionsController(val transactionService: TransactionService) {
             .addTransaction(Instant.now(), transactionRequest).fold(
                     { error ->
                         when (error) {
-                            is TransactionTimeIsFuture -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Any>()
-                            is TransactionTimeTooOld -> ResponseEntity.status(HttpStatus.NO_CONTENT).build<Any>()
+                            is TransactionIsInTheFuture -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Any>()
+                            is TransactionIsTooOld -> ResponseEntity.status(HttpStatus.NO_CONTENT).build<Any>()
                         }
                     },
                     { ResponseEntity.status(HttpStatus.CREATED).build<Any>() })
