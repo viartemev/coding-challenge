@@ -30,7 +30,6 @@ class StatisticsControllerTest {
     @MockBean
     lateinit var transactioService: TransactionService
 
-    //TODO what to return if there weren't any transactions
     @Test
     fun `statistics API should return 200 and empty statistics if nothing was added with correct formatting`() {
         whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse())
@@ -40,8 +39,8 @@ class StatisticsControllerTest {
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.sum", `is`("0.00")))
                 .andExpect(jsonPath("$.avg", `is`("0.00")))
-                .andExpect(jsonPath("$.max", nullValue()))
-                .andExpect(jsonPath("$.min", nullValue()))
+                .andExpect(jsonPath("$.max", `is`("0.00")))
+                .andExpect(jsonPath("$.min", `is`("0.00")))
                 .andExpect(jsonPath("$.count", `is`(0)))
 
         verify(transactioService, times(1)).getStatistics(any())
