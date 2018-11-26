@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +36,7 @@ class TransactionsControllerTest {
     fun `transaction API should return 201 in case of success`() {
         val now = Instant.now()
         val transactionRequest = TransactionRequest(BigDecimal("12.3343"), now)
-        doNothing().`when`(transactioService).addTransaction(any(), eq(transactionRequest))
+        doNothing().whenever(transactioService).addTransaction(any(), eq(transactionRequest))
 
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$now\"}")
@@ -80,7 +81,7 @@ class TransactionsControllerTest {
 
     @Test
     fun `transaction API should return 204 on delete transactions method`() {
-        doNothing().`when`(transactioService).deleteTransactions()
+        doNothing().whenever(transactioService).deleteTransactions()
         mvc.perform(delete("/transactions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(204))
