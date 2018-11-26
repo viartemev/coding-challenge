@@ -1,11 +1,15 @@
 package com.n26.service
 
+import com.n26.controller.domain.TransactionRequest
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class TransactionService {
 
     fun deleteTransactions() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun addTransaction(requestTime: Instant, transaction: TransactionRequest) {
     }
 }
