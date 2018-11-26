@@ -24,4 +24,11 @@ data class StatisticsResponse(
         return this
     }
 
+    fun calulateStaistic(): StatisticsResponse {
+        if (count != 0L) avg = sum.divide(count.toBigDecimal(), 2, BigDecimal.ROUND_HALF_UP)
+        if (min == null) min = BigDecimal.ZERO
+        if (max == null) max = BigDecimal.ZERO
+        return this
+    }
+
 }

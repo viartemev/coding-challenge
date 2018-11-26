@@ -10,7 +10,6 @@ import com.n26.service.exception.InvalidTransaction
 import com.n26.service.exception.TransactionIsInTheFuture
 import com.n26.service.exception.TransactionIsTooOld
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
 
@@ -35,7 +34,5 @@ class TransactionService(val statisticsStorage: StatisticsStorage) {
             .filterIsInstance<TransactionsPerSecond>()
             .filter { Duration.between(it.timestamp, requestTime).toMillis() < 60000 }
             .fold(StatisticsResponse()) { sumStat, statPerSecond -> sumStat.update(statPerSecond) }
-            .apply { if (count != 0L) avg = sum.divide(count.toBigDecimal(), 2, BigDecimal.ROUND_HALF_UP) }
-            .apply { if (min == null) min = BigDecimal.ZERO }
-            .apply { if (max == null) max = BigDecimal.ZERO }
+            .also { it.calulateStaistic() }
 }

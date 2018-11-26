@@ -32,7 +32,7 @@ class StatisticsControllerTest {
 
     @Test
     fun `statistics API should return 200 and empty statistics if nothing was added with correct formatting`() {
-        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse())
+        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse().calulateStaistic())
 
         mvc.perform(get("/statistics")
                 .contentType(MediaType.APPLICATION_JSON))
