@@ -2,7 +2,7 @@ package com.n26.serivce
 
 import arrow.core.Either
 import com.n26.service.domain.Transaction
-import com.n26.service.StatisticsStorage
+import com.n26.service.StatisticStorage
 import com.n26.service.TransactionService
 import com.n26.service.domain.EmptyStatisticPerSecond
 import com.n26.service.domain.TransactionsPerSecond
@@ -21,7 +21,7 @@ class TransactionServiceTest {
 
     @Test
     fun `Transaction service should return TransactionIsTooOld error if the transaction is older than 60 seconds`() {
-        val statisticsStorage = mock<StatisticsStorage> {}
+        val statisticsStorage = mock<StatisticStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
         val transaction = Transaction(BigDecimal.TEN, now.minusMillis(60001))
@@ -32,7 +32,7 @@ class TransactionServiceTest {
 
     @Test
     fun `Transaction service should return TransactionIsInTheFuture error if the transaction is in the future`() {
-        val statisticsStorage = mock<StatisticsStorage> {}
+        val statisticsStorage = mock<StatisticStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
         val transaction = Transaction(BigDecimal.TEN, now.plusSeconds(3))
@@ -43,7 +43,7 @@ class TransactionServiceTest {
 
     @Test
     fun `Transaction service should add the correct transaction to the storage`() {
-        val statisticsStorage = mock<StatisticsStorage> {}
+        val statisticsStorage = mock<StatisticStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
         val transaction = Transaction(BigDecimal.TEN, now)
@@ -54,7 +54,7 @@ class TransactionServiceTest {
 
     @Test
     fun `Transaction service should delegate delete trensaction operation to the storage`() {
-        val statisticsStorage = mock<StatisticsStorage> {}
+        val statisticsStorage = mock<StatisticStorage> {}
         val transactionService = TransactionService(statisticsStorage)
 
         assertThat(transactionService.deleteTransactions()).isEqualTo(Unit)
@@ -64,7 +64,7 @@ class TransactionServiceTest {
     @Test
     fun `Transaction service should return empty statistics if there are no transactions`() {
         val now = Instant.now()
-        val statisticsStorage = mock<StatisticsStorage> {
+        val statisticsStorage = mock<StatisticStorage> {
             on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, EmptyStatisticPerSecond)
         }
         val transactionService = TransactionService(statisticsStorage)
@@ -83,7 +83,7 @@ class TransactionServiceTest {
         val validStat1 = TransactionsPerSecond(now.minusMillis(30000), 1, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN)
         val validStat2 = TransactionsPerSecond(now, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
         val outDatedTransaction = TransactionsPerSecond(now.minusMillis(60001), 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
-        val statisticsStorage = mock<StatisticsStorage> {
+        val statisticsStorage = mock<StatisticStorage> {
             on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, validStat1, validStat2, outDatedTransaction)
         }
         val transactionService = TransactionService(statisticsStorage)

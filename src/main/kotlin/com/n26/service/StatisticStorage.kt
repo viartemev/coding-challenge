@@ -12,7 +12,7 @@ import kotlin.concurrent.write
 
 @ThreadSafe
 @Component
-class StatisticsStorage {
+class StatisticStorage {
     private val storage = Array<StatisticPerSecond>(60) { EmptyStatisticPerSecond }
     private val lock = ReentrantReadWriteLock(true)
 

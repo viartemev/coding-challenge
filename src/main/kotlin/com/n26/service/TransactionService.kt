@@ -14,13 +14,13 @@ import java.time.Duration
 import java.time.Instant
 
 @Service
-class TransactionService(val statisticsStorage: StatisticsStorage) {
+class TransactionService(val statisticStorage: StatisticStorage) {
 
-    fun deleteTransactions() = statisticsStorage.deleteStatistics()
+    fun deleteTransactions() = statisticStorage.deleteStatistics()
 
     fun addTransaction(requestTime: Instant, transaction: Transaction): Either<InvalidTransaction, Unit> =
             validateTransaction(requestTime, transaction)
-                    .map { statisticsStorage.addTransaction(it) }
+                    .map { statisticStorage.addTransaction(it) }
 
     fun validateTransaction(requestTime: Instant, transaction: Transaction) = when {
         transaction.timestamp.isAfter(requestTime) -> left(TransactionIsInTheFuture)
@@ -28,7 +28,7 @@ class TransactionService(val statisticsStorage: StatisticsStorage) {
         else -> right(transaction)
     }
 
-    fun getStatistics(requestTime: Instant) = statisticsStorage
+    fun getStatistics(requestTime: Instant) = statisticStorage
             .getStatistics()
             .asSequence()
             .filterIsInstance<TransactionsPerSecond>()
