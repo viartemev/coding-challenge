@@ -1,19 +1,45 @@
 package com.n26.service
 
 import com.n26.controller.domain.TransactionRequest
+import com.n26.service.domain.EmptyStatisticPerSecond
 import com.n26.service.domain.StatisticPerSecond
+import com.n26.service.domain.TransactionsPerSecond
+import com.n26.utils.ThreadSafe
+import org.springframework.stereotype.Component
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
+@ThreadSafe
+@Component
 class StatisticsStorage {
+    private val storage = Array<StatisticPerSecond>(60) { EmptyStatisticPerSecond }
+    private val lock = ReentrantReadWriteLock(true)
 
-    fun getStatistics(): List<StatisticPerSecond> {
-        return emptyList()
-    }
+    fun getStatistics() = lock.read { storage.toList() }
 
-    fun deleteStatistics() {
-
-    }
+    fun deleteStatistics() = lock.write { storage.fill(EmptyStatisticPerSecond) }
 
     fun addTransaction(transaction: TransactionRequest) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val transactionEpochSecond = transaction.timestamp.epochSecond
+        val index = (transactionEpochSecond % 60).toInt()
+        lock.write {
+            val statistic = storage[index]
+            when (statistic) {
+                is EmptyStatisticPerSecond -> storage[index] = extractStatisticFromTransaction(transaction)
+                is TransactionsPerSecond -> if (statistic.epochSecond != transactionEpochSecond) {
+                    storage[index] = extractStatisticFromTransaction(transaction)
+                } else statistic.update(transaction)
+            }
+        }
     }
+
+    private fun extractStatisticFromTransaction(transaction: TransactionRequest) = TransactionsPerSecond(
+            epochSecond = transaction.timestamp.epochSecond,
+            count = 1,
+            sum = transaction.amount,
+            max = transaction.amount,
+            min = transaction.amount
+    )
+
 }
