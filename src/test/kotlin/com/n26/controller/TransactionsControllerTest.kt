@@ -1,9 +1,13 @@
 package com.n26.controller
 
+import arrow.core.Either
 import com.n26.controller.domain.TransactionRequest
 import com.n26.service.TransactionService
+import com.n26.service.exception.TransactionTimeIsFuture
+import com.n26.service.exception.TransactionTimeTooOld
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -36,7 +40,7 @@ class TransactionsControllerTest {
     fun `transaction API should return 201 in case of success`() {
         val now = Instant.now()
         val transactionRequest = TransactionRequest(BigDecimal("12.3343"), now)
-        doNothing().whenever(transactioService).addTransaction(any(), eq(transactionRequest))
+        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.right(Unit))
 
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$now\"}")
@@ -48,10 +52,15 @@ class TransactionsControllerTest {
     @Test
     fun `transaction API should return 204 if the transaction is older than 60 seconds`() {
         val now = Instant.now()
+        val nowMinus10Minutes = now.minus(10, ChronoUnit.MINUTES)
+        val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowMinus10Minutes)
+        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionTimeTooOld))
+
         mvc.perform(post("/transactions")
-                .content("{\"amount\": \"12.3343\", \"timestamp\": \"${now.minus(10, ChronoUnit.MINUTES)}\"}")
+                .content("{\"amount\": \"12.3343\", \"timestamp\": \"$nowMinus10Minutes\"}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(204))
+        verify(transactioService, times(1)).addTransaction(any(), eq(transactionRequest))
     }
 
     @Test
@@ -73,10 +82,15 @@ class TransactionsControllerTest {
     @Test
     fun `transaction API should return 422 if the transaction date is in the future`() {
         val now = Instant.now()
+        val nowPlus3Seconds = now.plusSeconds(3)
+        val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowPlus3Seconds)
+        whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionTimeIsFuture))
+
         mvc.perform(post("/transactions")
-                .content("{\"amount\": \"12.3343\", \"timestamp\": \"${now.plusSeconds(3)}\"}")
+                .content("{\"amount\": \"12.3343\", \"timestamp\": \"$nowPlus3Seconds\"}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(422))
+        verify(transactioService, times(1)).addTransaction(any(), eq(transactionRequest))
     }
 
     @Test
@@ -85,6 +99,7 @@ class TransactionsControllerTest {
         mvc.perform(delete("/transactions")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(204))
+
         verify(transactioService, times(1)).deleteTransactions()
     }
 
