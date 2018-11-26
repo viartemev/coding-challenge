@@ -24,7 +24,7 @@ class TransactionServiceTest {
         val statisticsStorage = mock<StatisticsStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
-        val transaction = Transaction(BigDecimal.TEN, now.minusSeconds(90))
+        val transaction = Transaction(BigDecimal.TEN, now.minusMillis(60001))
 
         assertThat(transactionService.addTransaction(now, transaction)).isEqualTo(Either.left(TransactionIsTooOld))
         verify(statisticsStorage, times(0)).addTransaction(transaction)
@@ -71,8 +71,8 @@ class TransactionServiceTest {
         val statistics = transactionService.getStatistics(now)
 
         assertThat(statistics.count).isEqualTo(0)
-        assertThat(statistics.max).isNull()
-        assertThat(statistics.min).isNull()
+        assertThat(statistics.max).isEqualTo(BigDecimal.ZERO)
+        assertThat(statistics.min).isEqualTo(BigDecimal.ZERO)
         assertThat(statistics.sum).isEqualTo(BigDecimal.ZERO)
         assertThat(statistics.avg).isEqualTo(BigDecimal.ZERO)
     }
@@ -92,6 +92,6 @@ class TransactionServiceTest {
         assertThat(statistics.max).isEqualTo(BigDecimal.TEN)
         assertThat(statistics.min).isEqualTo(BigDecimal.ONE)
         assertThat(statistics.sum).isEqualTo(BigDecimal(11))
-        assertThat(statistics.avg).isEqualTo(BigDecimal("5.5"))
+        assertThat(statistics.avg).isEqualTo(BigDecimal("5.50"))
     }
 }

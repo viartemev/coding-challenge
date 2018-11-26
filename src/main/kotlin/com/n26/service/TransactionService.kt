@@ -25,7 +25,7 @@ class TransactionService(val statisticsStorage: StatisticsStorage) {
 
     fun validateTransaction(requestTime: Instant, transaction: Transaction) = when {
         transaction.timestamp.isAfter(requestTime) -> left(TransactionIsInTheFuture)
-        Duration.between(transaction.timestamp, requestTime).seconds > 60 -> left(TransactionIsTooOld)
+        Duration.between(transaction.timestamp, requestTime).toMillis() >= 60000 -> left(TransactionIsTooOld)
         else -> right(transaction)
     }
 
