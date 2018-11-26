@@ -5,6 +5,8 @@ import java.time.Instant
 
 sealed class StatisticPerSecond
 
+object EmptyStatisticPerSecond : StatisticPerSecond()
+
 data class TransactionsPerSecond(
         val timestamp: Instant,
         var count: Long = 0,
@@ -12,7 +14,6 @@ data class TransactionsPerSecond(
         var max: BigDecimal,
         var min: BigDecimal
 ) : StatisticPerSecond() {
-
     fun update(transaction: Transaction) {
         count += 1
         sum += transaction.amount
@@ -20,6 +21,4 @@ data class TransactionsPerSecond(
         max = max.max(transaction.amount)
     }
 }
-
-object EmptyStatisticPerSecond : StatisticPerSecond()
 

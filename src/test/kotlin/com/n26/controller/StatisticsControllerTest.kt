@@ -1,6 +1,6 @@
 package com.n26.controller
 
-import com.n26.controller.domain.StatisticsResponse
+import com.n26.service.domain.Statistics
 import com.n26.service.TransactionService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
@@ -30,8 +30,8 @@ class StatisticsControllerTest {
     lateinit var transactioService: TransactionService
 
     @Test
-    fun `statistics API should return 200 and empty statistics if nothing was added with correct formatting`() {
-        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse().calculateStatistic())
+    fun `Statistic API should return 200 and empty statistics if nothing was added with correct formatting`() {
+        whenever(transactioService.getStatistics(any())).thenReturn(Statistics().calculateStatistic())
 
         mvc.perform(get("/statistics")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -46,8 +46,8 @@ class StatisticsControllerTest {
     }
 
     @Test
-    fun `statistics API should return 200 and correctly formatted numbers`() {
-        val statisticsResponse = StatisticsResponse(
+    fun `Statistic API should return 200 and correctly formatted numbers`() {
+        val statisticsResponse = Statistics(
                 sum = BigDecimal("10.345"),
                 count = 2,
                 avg = BigDecimal("6.1223"),

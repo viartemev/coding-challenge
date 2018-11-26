@@ -1,16 +1,15 @@
-package com.n26.controller.domain
+package com.n26.service.domain
 
-import com.n26.service.domain.TransactionsPerSecond
 import java.math.BigDecimal
 
-data class StatisticsResponse(
+data class Statistics(
         var sum: BigDecimal = BigDecimal.ZERO,
         var avg: BigDecimal = BigDecimal.ZERO,
         var max: BigDecimal? = null,
         var min: BigDecimal? = null,
         var count: Long = 0
 ) {
-    fun update(transactionsPerSecond: TransactionsPerSecond): StatisticsResponse {
+    fun update(transactionsPerSecond: TransactionsPerSecond): Statistics {
         sum += transactionsPerSecond.sum
         count += transactionsPerSecond.count
         min = if (min == null) transactionsPerSecond.min else transactionsPerSecond.min.min(min)
@@ -18,7 +17,7 @@ data class StatisticsResponse(
         return this
     }
 
-    fun calculateStatistic(): StatisticsResponse {
+    fun calculateStatistic(): Statistics {
         if (count != 0L) avg = sum.divide(count.toBigDecimal(), 2, BigDecimal.ROUND_HALF_UP)
         if (min == null) min = BigDecimal.ZERO
         if (max == null) max = BigDecimal.ZERO

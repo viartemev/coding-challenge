@@ -19,13 +19,13 @@ class StatisticStorageTest {
     }
 
     @Test
-    fun `The storage should return an immutable list of statistics`() {
+    fun `Statistic storage should return an immutable list of statistics`() {
         val storage = StatisticStorage()
         assertThat(storage.getStatistics()).isInstanceOf(List::class.java)
     }
 
     @Test
-    fun `The storage should replace old transactions statistic by new one if 60 seconds left`() {
+    fun `Statistic storage should replace old transactions statistic by new one if 60 seconds left`() {
         val storage = StatisticStorage()
 
         val curTrxAmount = BigDecimal.TEN
@@ -47,7 +47,7 @@ class StatisticStorageTest {
     }
 
     @Test
-    fun `The storage should update transaction statistic if transaction with the same time added`() {
+    fun `Statistic storage should update transaction statistic if transaction with the same time added`() {
         val storage = StatisticStorage()
         val now = Instant.now()
 
@@ -67,7 +67,7 @@ class StatisticStorageTest {
 
 
     @Test
-    fun `The storage should be filled by EmptyStatisticPerSecond on deleteTransactions method`() {
+    fun `Statistic storage should be filled by EmptyStatisticPerSecond on deleteTransactions method`() {
         val storage = StatisticStorage()
         storage.addTransaction(Transaction(BigDecimal.ONE, Instant.now()))
         assertThat(storage.getStatistics()).hasAtLeastOneElementOfType(TransactionsPerSecond::class.java)

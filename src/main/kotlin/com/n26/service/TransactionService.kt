@@ -3,7 +3,7 @@ package com.n26.service
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import com.n26.controller.domain.StatisticsResponse
+import com.n26.service.domain.Statistics
 import com.n26.service.domain.Transaction
 import com.n26.service.domain.TransactionsPerSecond
 import com.n26.service.exception.InvalidTransaction
@@ -33,6 +33,6 @@ class TransactionService(val statisticStorage: StatisticStorage) {
             .asSequence()
             .filterIsInstance<TransactionsPerSecond>()
             .filter { Duration.between(it.timestamp, requestTime).toMillis() < 60000 }
-            .fold(StatisticsResponse()) { sumStat, statPerSecond -> sumStat.update(statPerSecond) }
+            .fold(Statistics()) { stat, transactionsPerSecond -> stat.update(transactionsPerSecond) }
             .also { it.calculateStatistic() }
 }
