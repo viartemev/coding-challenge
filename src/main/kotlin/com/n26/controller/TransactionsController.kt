@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 
 @RestController
@@ -19,7 +18,7 @@ class TransactionsController {
 
     @PostMapping
     fun addTransaction(@RequestBody transactionRequest: TransactionRequest): ResponseEntity<Any> {
-        val now = Instant.from(DateTimeFormatter.ISO_INSTANT.parse("2018-11-25T19:22:29.277Z"))
+        val now = Instant.now()
         if (Duration.between(transactionRequest.timestamp, now).seconds > 60) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build<Any>()
         }
