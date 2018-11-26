@@ -1,6 +1,5 @@
 package com.n26.service.domain
 
-import com.n26.controller.domain.TransactionRequest
 import java.math.BigDecimal
 
 sealed class StatisticPerSecond
@@ -13,7 +12,7 @@ data class TransactionsPerSecond(
         var min: BigDecimal
 ) : StatisticPerSecond() {
 
-    fun update(transaction: TransactionRequest) {
+    fun update(transaction: Transaction) {
         count += 1
         sum += transaction.amount
         min = min.min(transaction.amount)

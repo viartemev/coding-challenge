@@ -1,6 +1,6 @@
 package com.n26.controller
 
-import com.n26.controller.domain.TransactionRequest
+import com.n26.service.domain.Transaction
 import com.n26.service.TransactionService
 import com.n26.service.exception.TransactionIsInTheFuture
 import com.n26.service.exception.TransactionIsTooOld
@@ -19,8 +19,8 @@ import java.time.Instant
 class TransactionsController(val transactionService: TransactionService) {
 
     @PostMapping
-    fun addTransaction(@RequestBody transactionRequest: TransactionRequest) = transactionService
-            .addTransaction(Instant.now(), transactionRequest).fold(
+    fun addTransaction(@RequestBody transaction: Transaction) = transactionService
+            .addTransaction(Instant.now(), transaction).fold(
                     { error ->
                         when (error) {
                             is TransactionIsInTheFuture -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Any>()

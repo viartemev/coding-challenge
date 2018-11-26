@@ -1,6 +1,6 @@
 package com.n26.service
 
-import com.n26.controller.domain.TransactionRequest
+import com.n26.service.domain.Transaction
 import com.n26.service.domain.EmptyStatisticPerSecond
 import com.n26.service.domain.StatisticPerSecond
 import com.n26.service.domain.TransactionsPerSecond
@@ -20,7 +20,7 @@ class StatisticsStorage {
 
     fun deleteStatistics() = lock.write { storage.fill(EmptyStatisticPerSecond) }
 
-    fun addTransaction(transaction: TransactionRequest) {
+    fun addTransaction(transaction: Transaction) {
         val transactionEpochSecond = transaction.timestamp.epochSecond
         val index = (transactionEpochSecond % 60).toInt()
         lock.write {
@@ -34,7 +34,7 @@ class StatisticsStorage {
         }
     }
 
-    private fun extractStatisticFromTransaction(transaction: TransactionRequest) = TransactionsPerSecond(
+    private fun extractStatisticFromTransaction(transaction: Transaction) = TransactionsPerSecond(
             epochSecond = transaction.timestamp.epochSecond,
             count = 1,
             sum = transaction.amount,

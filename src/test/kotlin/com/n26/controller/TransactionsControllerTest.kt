@@ -1,7 +1,7 @@
 package com.n26.controller
 
 import arrow.core.Either
-import com.n26.controller.domain.TransactionRequest
+import com.n26.service.domain.Transaction
 import com.n26.service.TransactionService
 import com.n26.service.exception.TransactionIsInTheFuture
 import com.n26.service.exception.TransactionIsTooOld
@@ -39,7 +39,7 @@ class TransactionsControllerTest {
     @Test
     fun `transaction API should return 201 in case of success`() {
         val now = Instant.now()
-        val transactionRequest = TransactionRequest(BigDecimal("12.3343"), now)
+        val transactionRequest = Transaction(BigDecimal("12.3343"), now)
         whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.right(Unit))
 
         mvc.perform(post("/transactions")
@@ -53,7 +53,7 @@ class TransactionsControllerTest {
     fun `transaction API should return 204 if the transaction is older than 60 seconds`() {
         val now = Instant.now()
         val nowMinus10Minutes = now.minus(10, ChronoUnit.MINUTES)
-        val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowMinus10Minutes)
+        val transactionRequest = Transaction(BigDecimal("12.3343"), nowMinus10Minutes)
         whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionIsTooOld))
 
         mvc.perform(post("/transactions")
@@ -83,7 +83,7 @@ class TransactionsControllerTest {
     fun `transaction API should return 422 if the transaction date is in the future`() {
         val now = Instant.now()
         val nowPlus3Seconds = now.plusSeconds(3)
-        val transactionRequest = TransactionRequest(BigDecimal("12.3343"), nowPlus3Seconds)
+        val transactionRequest = Transaction(BigDecimal("12.3343"), nowPlus3Seconds)
         whenever(transactioService.addTransaction(any(), eq(transactionRequest))).doReturn(Either.left(TransactionIsInTheFuture))
 
         mvc.perform(post("/transactions")

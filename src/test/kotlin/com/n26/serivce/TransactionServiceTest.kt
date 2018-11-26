@@ -1,7 +1,7 @@
 package com.n26.serivce
 
 import arrow.core.Either
-import com.n26.controller.domain.TransactionRequest
+import com.n26.service.domain.Transaction
 import com.n26.service.StatisticsStorage
 import com.n26.service.TransactionService
 import com.n26.service.domain.EmptyStatisticPerSecond
@@ -24,7 +24,7 @@ class TransactionServiceTest {
         val statisticsStorage = mock<StatisticsStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
-        val transaction = TransactionRequest(BigDecimal.TEN, now.minusSeconds(90))
+        val transaction = Transaction(BigDecimal.TEN, now.minusSeconds(90))
 
         assertThat(transactionService.addTransaction(now, transaction)).isEqualTo(Either.left(TransactionIsTooOld))
         verify(statisticsStorage, times(0)).addTransaction(transaction)
@@ -35,7 +35,7 @@ class TransactionServiceTest {
         val statisticsStorage = mock<StatisticsStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
-        val transaction = TransactionRequest(BigDecimal.TEN, now.plusSeconds(3))
+        val transaction = Transaction(BigDecimal.TEN, now.plusSeconds(3))
 
         assertThat(transactionService.addTransaction(now, transaction)).isEqualTo(Either.left(TransactionIsInTheFuture))
         verify(statisticsStorage, times(0)).addTransaction(transaction)
@@ -46,7 +46,7 @@ class TransactionServiceTest {
         val statisticsStorage = mock<StatisticsStorage> {}
         val now = Instant.now()
         val transactionService = TransactionService(statisticsStorage)
-        val transaction = TransactionRequest(BigDecimal.TEN, now)
+        val transaction = Transaction(BigDecimal.TEN, now)
 
         assertThat(transactionService.addTransaction(now, transaction)).isEqualTo(Either.right(Unit))
         verify(statisticsStorage, times(1)).addTransaction(transaction)
