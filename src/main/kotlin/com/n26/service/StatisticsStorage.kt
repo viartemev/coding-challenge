@@ -1,9 +1,14 @@
 package com.n26.service
 
 import com.n26.controller.domain.TransactionRequest
-import java.time.Instant
+import com.n26.service.domain.StatisticPerSecond
 
 class StatisticsStorage {
+
+    fun getStatistics(): List<StatisticPerSecond> {
+        return emptyList()
+    }
+
     fun deleteStatistics() {
 
     }

@@ -2,10 +2,12 @@ package com.n26.controller
 
 import com.n26.controller.domain.StatisticsResponse
 import com.n26.service.TransactionService
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.Matchers.nullValue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.math.BigDecimal
 
 @RunWith(SpringRunner::class)
 @WebMvcTest(StatisticsController::class)
@@ -27,20 +30,44 @@ class StatisticsControllerTest {
     @MockBean
     lateinit var transactioService: TransactionService
 
+    //TODO what to return if there weren't any transactions
     @Test
     fun `statistics API should return 200 and empty statistics if nothing was added with correct formatting`() {
-        whenever(transactioService.getStatistics()).thenReturn(StatisticsResponse())
+        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse())
 
         mvc.perform(get("/statistics")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.sum", `is`("0.00")))
                 .andExpect(jsonPath("$.avg", `is`("0.00")))
-                .andExpect(jsonPath("$.max", `is`("0.00")))
-                .andExpect(jsonPath("$.min", `is`("0.00")))
+                .andExpect(jsonPath("$.max", nullValue()))
+                .andExpect(jsonPath("$.min", nullValue()))
                 .andExpect(jsonPath("$.count", `is`(0)))
 
-        verify(transactioService, times(1)).getStatistics()
+        verify(transactioService, times(1)).getStatistics(any())
+    }
+
+    @Test
+    fun `statistics API should return 200 and correctly formatted numbers`() {
+        val statisticsResponse = StatisticsResponse(
+                sum = BigDecimal("10.345"),
+                count = 2,
+                avg = BigDecimal("6.1223"),
+                max = BigDecimal("13.43643"),
+                min = BigDecimal("3.8")
+        )
+        whenever(transactioService.getStatistics(any())).thenReturn(statisticsResponse)
+
+        mvc.perform(get("/statistics")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.sum", `is`("10.35")))
+                .andExpect(jsonPath("$.avg", `is`("6.12")))
+                .andExpect(jsonPath("$.max", `is`("13.44")))
+                .andExpect(jsonPath("$.min", `is`("3.80")))
+                .andExpect(jsonPath("$.count", `is`(2)))
+
+        verify(transactioService, times(1)).getStatistics(any())
     }
 
 }
