@@ -80,10 +80,11 @@ class TransactionServiceTest {
     @Test
     fun `Transaction service should collect statistic from all transactions`() {
         val now = Instant.now()
-        val transactionPerSecond1 = TransactionsPerSecond(now.plusSeconds(1).epochSecond, 1, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN)
-        val transactionPerSecond2 = TransactionsPerSecond(now.epochSecond, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
+        val validStat1 = TransactionsPerSecond(now.minusMillis(30000), 1, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN)
+        val validStat2 = TransactionsPerSecond(now, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
+        val outDatedTransaction = TransactionsPerSecond(now.minusMillis(60001), 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
         val statisticsStorage = mock<StatisticsStorage> {
-            on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, EmptyStatisticPerSecond, transactionPerSecond1, transactionPerSecond2)
+            on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, validStat1, validStat2, outDatedTransaction)
         }
         val transactionService = TransactionService(statisticsStorage)
         val statistics = transactionService.getStatistics(now)

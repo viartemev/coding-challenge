@@ -33,7 +33,7 @@ class TransactionService(val statisticsStorage: StatisticsStorage) {
             .getStatistics()
             .asSequence()
             .filterIsInstance<TransactionsPerSecond>()
-            .filter { requestTime.epochSecond - it.epochSecond <= 60 }
+            .filter { Duration.between(it.timestamp, requestTime).toMillis() < 60000 }
             .fold(StatisticsResponse()) { sumStat, statPerSecond -> sumStat.update(statPerSecond) }
             .apply { if (count != 0L) avg = sum.divide(count.toBigDecimal(), 2, BigDecimal.ROUND_HALF_UP) }
             .apply { if (min == null) min = BigDecimal.ZERO }

@@ -1,11 +1,12 @@
 package com.n26.service.domain
 
 import java.math.BigDecimal
+import java.time.Instant
 
 sealed class StatisticPerSecond
 
 data class TransactionsPerSecond(
-        val epochSecond: Long,
+        val timestamp: Instant,
         var count: Long = 0,
         var sum: BigDecimal,
         var max: BigDecimal,
