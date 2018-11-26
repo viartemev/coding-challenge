@@ -1,6 +1,8 @@
 package com.n26.service
 
 import arrow.core.Either
+import arrow.core.Either.Companion.left
+import arrow.core.Either.Companion.right
 import com.n26.controller.domain.StatisticsResponse
 import com.n26.controller.domain.TransactionRequest
 import com.n26.service.domain.TransactionsPerSecond
@@ -16,15 +18,14 @@ class TransactionService(val statisticsStorage: StatisticsStorage) {
 
     fun deleteTransactions() = statisticsStorage.deleteStatistics()
 
-    fun addTransaction(requestTime: Instant, transaction: TransactionRequest): Either<InvalidTransaction, Unit> {
-        if (transaction.timestamp.isAfter(requestTime)) {
-            return Either.left(TransactionIsInTheFuture)
-        }
-        if (Duration.between(transaction.timestamp, requestTime).seconds > 60) {
-            return Either.left(TransactionIsTooOld)
-        }
-        statisticsStorage.addTransaction(transaction)
-        return Either.right(Unit)
+    fun addTransaction(requestTime: Instant, transaction: TransactionRequest): Either<InvalidTransaction, Unit> =
+            validateTransaction(requestTime, transaction)
+                    .map { statisticsStorage.addTransaction(it) }
+
+    fun validateTransaction(requestTime: Instant, transaction: TransactionRequest) = when {
+        transaction.timestamp.isAfter(requestTime) -> left(TransactionIsInTheFuture)
+        Duration.between(transaction.timestamp, requestTime).seconds > 60 -> left(TransactionIsTooOld)
+        else -> right(transaction)
     }
 
     fun getStatistics(requestTime: Instant) = statisticsStorage

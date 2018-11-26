@@ -62,12 +62,28 @@ class TransactionServiceTest {
     }
 
     @Test
+    fun `Transaction service should return empty statistics if there are no transactions`() {
+        val now = Instant.now()
+        val statisticsStorage = mock<StatisticsStorage> {
+            on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, EmptyStatisticPerSecond)
+        }
+        val transactionService = TransactionService(statisticsStorage)
+        val statistics = transactionService.getStatistics(now)
+
+        assertThat(statistics.count).isEqualTo(0)
+        assertThat(statistics.max).isNull()
+        assertThat(statistics.min).isNull()
+        assertThat(statistics.sum).isEqualTo(BigDecimal.ZERO)
+        assertThat(statistics.avg).isEqualTo(BigDecimal.ZERO)
+    }
+
+    @Test
     fun `Transaction service should collect statistic from all transactions`() {
         val now = Instant.now()
-        val transaction1 = TransactionsPerSecond(now.plusSeconds(1).epochSecond, 1, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN)
-        val transaction2 = TransactionsPerSecond(now.epochSecond, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
+        val transactionPerSecond1 = TransactionsPerSecond(now.plusSeconds(1).epochSecond, 1, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN)
+        val transactionPerSecond2 = TransactionsPerSecond(now.epochSecond, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)
         val statisticsStorage = mock<StatisticsStorage> {
-            on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, EmptyStatisticPerSecond, transaction1, transaction2)
+            on { getStatistics() } doReturn listOf(EmptyStatisticPerSecond, EmptyStatisticPerSecond, transactionPerSecond1, transactionPerSecond2)
         }
         val transactionService = TransactionService(statisticsStorage)
         val statistics = transactionService.getStatistics(now)
