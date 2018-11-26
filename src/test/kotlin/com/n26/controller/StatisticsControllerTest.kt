@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.Matchers.nullValue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +31,7 @@ class StatisticsControllerTest {
 
     @Test
     fun `statistics API should return 200 and empty statistics if nothing was added with correct formatting`() {
-        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse().calulateStaistic())
+        whenever(transactioService.getStatistics(any())).thenReturn(StatisticsResponse().calculateStatistic())
 
         mvc.perform(get("/statistics")
                 .contentType(MediaType.APPLICATION_JSON))

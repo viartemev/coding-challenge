@@ -34,5 +34,5 @@ class TransactionService(val statisticStorage: StatisticStorage) {
             .filterIsInstance<TransactionsPerSecond>()
             .filter { Duration.between(it.timestamp, requestTime).toMillis() < 60000 }
             .fold(StatisticsResponse()) { sumStat, statPerSecond -> sumStat.update(statPerSecond) }
-            .also { it.calulateStaistic() }
+            .also { it.calculateStatistic() }
 }
