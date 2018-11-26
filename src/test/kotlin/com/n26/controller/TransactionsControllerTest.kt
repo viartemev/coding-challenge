@@ -7,11 +7,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @RunWith(SpringRunner::class)
-@WebMvcTest
+@WebMvcTest(TransactionsController::class)
 class TransactionsControllerTest {
 
     @Autowired
@@ -21,7 +22,7 @@ class TransactionsControllerTest {
     val currentMinus10Minutes = "2018-11-25T19:10:29.277Z"
 
     @Test
-    fun `transactions API should return 201 in case of success`() {
+    fun `transaction API should return 201 in case of success`() {
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$currentInstant\"}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -29,7 +30,7 @@ class TransactionsControllerTest {
     }
 
     @Test
-    fun `transactions API should return 204 if the transaction is older than 60 seconds`() {
+    fun `transaction API should return 204 if the transaction is older than 60 seconds`() {
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$currentMinus10Minutes\"}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -37,7 +38,7 @@ class TransactionsControllerTest {
     }
 
     @Test
-    fun `transactions API should return 400 if the JSON is invalid`() {
+    fun `transaction API should return 400 if the JSON is invalid`() {
         mvc.perform(post("/transactions")
                 .content("String")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -45,7 +46,7 @@ class TransactionsControllerTest {
     }
 
     @Test
-    fun `transactions API should return 422 if any of the fields are not parsable`() {
+    fun `transaction API should return 422 if any of the fields are not parsable`() {
         mvc.perform(post("/transactions")
                 .content("{\"timestamp\":\"4/23/2018 11:32 PM\", \"amount\":\"262.01\"}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -53,11 +54,18 @@ class TransactionsControllerTest {
     }
 
     @Test
-    fun `transactions API should return 422 if the transaction date is in the future`() {
+    fun `transaction API should return 422 if the transaction date is in the future`() {
         mvc.perform(post("/transactions")
                 .content("{\"amount\": \"12.3343\", \"timestamp\": \"$futureInstant\"}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().`is`(422))
+    }
+
+    @Test
+    fun `transaction API should return 204 on delete transactions method`() {
+        mvc.perform(delete("/transactions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().`is`(204))
     }
 
 }

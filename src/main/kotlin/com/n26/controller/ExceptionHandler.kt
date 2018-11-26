@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class CustomRestExceptionHandler {
+class ExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleMismatchedInputException(ex: HttpMessageNotReadableException): ResponseEntity<Any> {
-        return when (ex.cause) {
-            is InvalidFormatException -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build()
-            is MismatchedInputException -> ResponseEntity.badRequest().build<Any>()
-            else -> ResponseEntity.badRequest().build<Any>()
-        }
+    fun handleMismatchedInputException(ex: HttpMessageNotReadableException) = when (ex.cause) {
+        is InvalidFormatException -> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build<Nothing>()
+        is MismatchedInputException -> ResponseEntity.badRequest().build<Nothing>()
+        else -> ResponseEntity.badRequest().build<Nothing>()
     }
 }
